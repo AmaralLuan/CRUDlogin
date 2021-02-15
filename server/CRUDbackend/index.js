@@ -9,6 +9,8 @@ const bcrypt = require('bcrypt');
 
 const saltRounds = 10;
 
+const jwt = require('jsonwebtoken');
+
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -20,7 +22,7 @@ const db = mysql.createPool({
 
 app.use(cors({
     origin: ['http://localhost:3000'],
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT'],
     credentials: true
 }));
 app.use(express.json());
@@ -78,17 +80,16 @@ app.post('/api/login', (req, res) => {
             }
 
             if (result.length > 0) {
-                bcrypt.compare(password, result[0].password, (error, response) => {
+                bcrypt.compare(password, result[0].user_password, (error, response) => {
                     if (response) {
                         req.session.user = result;
-                        console.log(req.session.user);
                         res.send(result)
                     } else {
-                        res.send({message: "Deu ruim"})
+                        res.send({message: "Login ou senha incorretos!"})
                     }
                 })
             } else {
-                res.send({ message: "User not found" })
+                res.send({ message: "Usuário não encontrado!" })
             }
         }
     )
